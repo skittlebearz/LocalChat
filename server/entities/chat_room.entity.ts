@@ -1,5 +1,4 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Message } from './message.entity';
 
 @Entity()
 export class ChatRoom {
@@ -12,6 +11,9 @@ export class ChatRoom {
   @Column()
   roomkey: string;
 
-  @OneToMany(() => Message, (message) => message.chatRoom)
-  messages: Message[];
+  @Column()
+  latitude: number;
+
+  @Column()
+  longitude: number;
 }

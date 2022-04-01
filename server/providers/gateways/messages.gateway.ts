@@ -8,9 +8,7 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
-import { MessagesService } from '../services/messages.service';
 import { Server, Socket } from 'socket.io';
-import { Message } from 'server/entities/message.entity';
 import { ConsoleLogger, UseGuards } from '@nestjs/common';
 import { GatewayAuthGuard } from '../guards/gatewayauth.guard';
 import { JwtService } from '../services/jwt.service';
@@ -29,17 +27,13 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
   @WebSocketServer()
   server: Server;
 
-  constructor(private messagesService: MessagesService, private jwtService: JwtService) {}
-
   async handleConnection(client: any, ...args: any[]) {
     try {
       console.log('Client connected');
       const jwt = client.handshake.auth.token;
-      this.jwtService.parseToken(jwt);
+      // this.jwtService.parseToken(jwt);
       console.log(client.handshake.query);
       client.join(client.handshake.query.chatRoomId as unknown as string);
-      const messages = await this.messagesService.findAllForRoom(client.handshake.query.chatRoomId);
-      client.emit('initial-messages', messages);
     } catch (e) {
       throw new WsException('Invalid token');
     }
@@ -56,12 +50,12 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
     @GatewayJwtBody() jwtBody: JwtBodyDto,
   ) {
     console.log(payload);
-    let message = new Message();
-    message.contents = payload.contents;
-    message.userName = payload.userName;
-    message.userId = jwtBody.userId;
-    message.chatRoomId = parseInt(client.handshake.query.chatRoomId as unknown as string, 10);
-    message = await this.messagesService.create(message);
+    let message = {
+    contents : payload.contents,
+    userName : payload.userName,
+    userId : jwtBody.userId,
+    chatRoomId : parseInt(client.handshake.query.chatRoomId as unknown as string, 10)
+    }
     this.server.to(`${message.chatRoomId}`).emit('message', message);
   }
 }
