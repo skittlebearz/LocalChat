@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 
 
 function distance(lat1, lon1, lat2, lon2, unit) {
+  console.log(lat1, lon1, lat2, lon2)
 	if ((lat1 == lat2) && (lon1 == lon2)) {
 		return 0;
 	}
@@ -71,15 +72,15 @@ export const Home = () => {
       <Button onClick={createRoom}>Create Room</Button>
       <div>
         {chatRooms.map((chatRoom) => (
-          distance(lat, long, chatRoom.lat, chatRoom.long, "M") > 5 &&
+          distance(lat, long, chatRoom.latitude, chatRoom.longitude, "K") < 5 &&
           <div key={chatRoom.id}>
             <Link to={`/chat_rooms/${chatRoom.id}`}>{chatRoom.name}</Link>
           </div>
         ))}
       </div>
-      {location &&
+      {/* {location &&
       <h1>{ location.coords.latitude }</h1>
-      }
+      } */}
       {location==null &&
       <h1> Location unavailable, please enable location permissions and refresh page </h1>
       }
