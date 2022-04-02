@@ -36,6 +36,10 @@ export const SignIn = () => {
   };
 
   return (
+      <div>
+      <div className="p-4 m-4 bg-green-600">
+        <h1 className="text-2xl font-bold text-white">Local Chatter</h1>
+      </div>
     <div className="flex flex-row justify-center m-4">
       <div className="w-96">
         <Paper>
@@ -54,6 +58,7 @@ export const SignIn = () => {
           </div>
         </Paper>
       </div>
+    </div>
     </div>
   );
 };

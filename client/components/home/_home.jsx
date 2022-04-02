@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 
 
 function distance(lat1, lon1, lat2, lon2, unit) {
-  console.log(lat1, lon1, lat2, lon2)
 	if ((lat1 == lat2) && (lon1 == lon2)) {
 		return 0;
 	}
@@ -27,7 +26,6 @@ function distance(lat1, lon1, lat2, lon2, unit) {
 	}
 }
 
-
 export const Home = () => {
   const api = useContext(ApiContext);
   // const navigate = useNavigate();
@@ -36,6 +34,7 @@ export const Home = () => {
   const [chatRooms, setChatRooms] = useState([]);
   const [location, setLocation] = useState(null)
   const [lat, setLat] = useState(null)
+  const [error, setError] = useState(false)
   const [long, setLong] = useState(null)
 
   const [loading, setLoading] = useState(true);
@@ -45,7 +44,6 @@ export const Home = () => {
   useEffect(async () => {
     const res = await api.get('/users/me');
     const { chatRooms } = await api.get('/chat_rooms');
-    console.log(chatRooms);
     setChatRooms(chatRooms);
     navigator.geolocation.getCurrentPosition(locate = (position) => {setLocation(position)
     setLat(position.coords.latitude)
@@ -60,30 +58,41 @@ export const Home = () => {
   }
 
   const createRoom = async () => {
-    const { chatRoom } = await api.post('/chat_rooms', { name, lat, long });
-    setChatRooms([...chatRooms, chatRoom]);
-    setName('');
+    if(name !== ''){
+      const { chatRoom } = await api.post('/chat_rooms', { name, lat, long });
+      setChatRooms([...chatRooms, chatRoom]);
+      setName('');
+      setError(false)
+    }
+    else{setError(true)}
   };
 
   return (
-    <div className="p-4">
-      <h1>Welcome {user.firstName}</h1>
+    <div>
+      <div className="p-4 m-4 bg-green-600">
+        <h1 className="text-2xl font-bold text-white">Local Chatter</h1>
+      </div>
+    <div className="p-4 m-4 bg-green-300 rounded-lg">
+      <h1 className="text-xl font-bold">Welcome {user.firstName}</h1>
       <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
-      <Button onClick={createRoom}>Create Room</Button>
+      <Button onClick={createRoom}>Create New Room At Your Location</Button>
+      {error && <div><h2 className="text-red-500 text-xl">Must enter a name for the room</h2></div>}
+      <br></br>
+      <br></br>
+      <br></br>
       <div>
+      <h1 className="text-xl font-bold">Showing all rooms created within 10 miles</h1>
+      </div>
+      <div className="p-4 m-4 -gray-400 rounded-lg">
         {chatRooms.map((chatRoom) => (
-          distance(lat, long, chatRoom.latitude, chatRoom.longitude, "K") < 5 &&
-          <div key={chatRoom.id}>
-            <Link to={`/chat_rooms/${chatRoom.id}`}>{chatRoom.name}</Link>
-          </div>
+          distance(lat, long, chatRoom.latitude, chatRoom.longitude, "M") < 10 &&
+            <Link className="text-white pt-2 pb-2 pr-4 pl-4 m-4 rounded-lg font-bold bg-green-800" to={`/chat_rooms/${chatRoom.id}`}>Join: {chatRoom.name}</Link>
         ))}
       </div>
-      {/* {location &&
-      <h1>{ location.coords.latitude }</h1>
-      } */}
       {location==null &&
       <h1> Location unavailable, please enable location permissions and refresh page </h1>
       }
+    </div>
     </div>
   );
 };

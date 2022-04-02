@@ -10,7 +10,6 @@ export const useMessages = (chatRoom) => {
 
   useEffect(() => {
     if (chatRoom) {
-      console.log(chatRoom.id);
       const socket = io({
         auth: {
           token: authToken,
